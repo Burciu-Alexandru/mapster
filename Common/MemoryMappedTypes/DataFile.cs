@@ -17,6 +17,9 @@ public delegate bool MapFeatureDelegate(MapFeatureData featureData);
 /// <summary>
 ///     Aggregation of all the data needed to render a map feature
 /// </summary>
+
+
+
 public readonly ref struct MapFeatureData
 {
     public long Id { get; init; }
@@ -24,7 +27,7 @@ public readonly ref struct MapFeatureData
     public GeometryType Type { get; init; }
     public ReadOnlySpan<char> Label { get; init; }
     public ReadOnlySpan<Coordinate> Coordinates { get; init; }
-    public Dictionary<string, string> Properties { get; init; }
+    public Props Properties { get; init; }
 }
 
 /// <summary>
@@ -189,13 +192,13 @@ public unsafe class DataFile : IDisposable
                     }
 
                     if (!action(new MapFeatureData
-                        {
-                            Id = feature->Id,
-                            Label = label,
-                            Coordinates = coordinates,
-                            Type = feature->GeometryType,
-                            Properties = properties
-                        }))
+                    {
+                        Id = feature->Id,
+                        Label = label,
+                        Coordinates = coordinates,
+                        Type = feature->GeometryType,
+                        Properties = new Props(properties)
+                    }))
                     {
                         break;
                     }
@@ -203,4 +206,280 @@ public unsafe class DataFile : IDisposable
             }
         }
     }
+}
+
+public class Props
+{
+
+    public enum Highway
+    {
+        other,
+        unset,
+        motorway,
+        trunk,
+        primary,
+        secondary,
+        tertiary,
+        unclassified,
+        residential,
+        road,
+    };
+
+    private static Dictionary<string, Highway> HighwayDict = new Dictionary<string, Highway>(){
+      { "motorway", Highway.motorway },
+      { "trunk", Highway.trunk },
+      { "primary", Highway.primary },
+      { "secondary", Highway.secondary },
+      { "tertiary", Highway.tertiary },
+      { "unclassified", Highway.unclassified },
+      { "residential", Highway.residential },
+      { "road", Highway.road },
+  };
+
+    public enum Water
+    {
+        Other,
+        Unset,
+    };
+
+    private static Dictionary<string, Water> WaterMapping = new Dictionary<string, Water>() { };
+
+    public enum Boundary
+    {
+        Other,
+        Unset,
+        Administrative,
+        Forest,
+    };
+
+    private static Dictionary<string, Boundary> BoundaryMapping = new Dictionary<string, Boundary>(){
+    { "administrative", Boundary.Administrative },
+    { "forest", Boundary.Forest },
+  };
+
+    public enum AdminLevel
+    {
+        OTHER,
+        UNSET,
+        LEVEL_2,
+    };
+
+    private static Dictionary<string, AdminLevel> AdminLevelMapping = new Dictionary<string, AdminLevel>() {
+    { "2", AdminLevel.LEVEL_2 },
+  };
+
+    public enum Place
+    {
+        OTHER,
+        UNSET,
+        CITY,
+        TOWN,
+        LOCALITY,
+        HAMLET,
+    };
+
+    private static Dictionary<string, Place> PlaceMapping = new Dictionary<string, Place>() {
+    { "city", Place.CITY },
+    { "town", Place.TOWN },
+    { "locality", Place.LOCALITY },
+    { "hamlet", Place.HAMLET }
+  };
+
+    public enum Railway
+    {
+        OTHER,
+        UNSET,
+    };
+
+    private static Dictionary<string, Railway> RailwayMapping = new Dictionary<string, Railway>() { };
+
+    public enum Natural
+    {
+        OTHER,
+        UNSET,
+        FELL,
+        GRASSLAND,
+        HEATH,
+        MOOR,
+        SCRUB,
+        WETLAND,
+        WOOD,
+        TREE_ROW,
+        BARE_ROCK,
+        ROCK,
+        SCREE,
+        BEACH,
+        SAND,
+        WATER
+    };
+
+    private static Dictionary<string, Natural> NaturalMapping = new Dictionary<string, Natural>() {
+    { "fell", Natural.FELL },
+    { "grassland", Natural.GRASSLAND },
+    { "heath", Natural.HEATH },
+    { "moor", Natural.MOOR },
+    { "scrub", Natural.SCRUB },
+    { "wetland", Natural.WETLAND },
+    { "wood", Natural.WOOD },
+    { "tree_row", Natural.TREE_ROW },
+    { "bare_rock", Natural.BARE_ROCK },
+    { "rock", Natural.ROCK },
+    { "scree", Natural.SCREE },
+    { "beach", Natural.BEACH },
+    { "sand", Natural.SAND },
+    { "water", Natural.WATER },
+  };
+
+    public enum Landuse
+    {
+        OTHER,
+        UNSET,
+        FOREST,
+        ORCHARD,
+        RESIDENTIAL,
+        CEMETERY,
+        INDUSTRIAL,
+        COMMERCIAL,
+        SQUARE,
+        CONSTRUCTION,
+        MILITARY,
+        QUARRY,
+        BROWNFIELD,
+        FARM,
+        MEADOW,
+        GRASS,
+        GREENFIELD,
+        RECREATION_GROUND,
+        WINTER_SPORTS,
+        ALLOTMENTS,
+        RESERVOIR,
+        BASIN,
+    };
+
+    private static Dictionary<string, Landuse> LanduseMapping = new Dictionary<string, Landuse>() {
+    { "forest", Landuse.FOREST },
+    { "orchard", Landuse.ORCHARD },
+    { "residential", Landuse.RESIDENTIAL },
+    { "cemetery", Landuse.CEMETERY },
+    { "industrial", Landuse.INDUSTRIAL },
+    { "commercial", Landuse.COMMERCIAL },
+    { "square", Landuse.SQUARE },
+    { "construction", Landuse.CONSTRUCTION },
+    { "military", Landuse.MILITARY },
+    { "quarry", Landuse.QUARRY },
+    { "brownfield", Landuse.BROWNFIELD },
+    { "farm", Landuse.FARM },
+    { "meadow", Landuse.MEADOW },
+    { "grass", Landuse.GRASS },
+    { "greenfield", Landuse.GREENFIELD },
+    { "recreation_ground", Landuse.RECREATION_GROUND },
+    { "winter_sports", Landuse.WINTER_SPORTS },
+    { "allotments", Landuse.ALLOTMENTS },
+    { "reservoir", Landuse.RESERVOIR },
+    { "basin", Landuse.BASIN },
+  };
+
+    public enum Building
+    {
+        OTHER,
+        UNSET,
+    };
+
+    private static Dictionary<string, Building> BuildingMapping = new Dictionary<string, Building>() { };
+
+    public enum Leisure
+    {
+        OTHER,
+        UNSET,
+    };
+
+    private static Dictionary<string, Leisure> LeisureMapping = new Dictionary<string, Leisure>() { };
+
+    public enum Amenity
+    {
+        OTHER,
+        UNSET,
+    };
+
+    private static Dictionary<string, Amenity> AmenityMapping = new Dictionary<string, Amenity>() { };
+
+    public Props(Dictionary<string, string> properties)
+    {
+        foreach (KeyValuePair<string, string> entry in properties)
+        {
+            if (entry.Key.StartsWith("highway"))
+            {
+                string key = HighwayDict.Keys.Where(k => entry.Value.StartsWith(k)).FirstOrDefault("");
+                HighwayDict.TryGetValue(key, out highway);
+            }
+            else if (entry.Key.StartsWith("water"))
+            {
+                string key = WaterMapping.Keys.Where(k => entry.Value.StartsWith(k)).FirstOrDefault("");
+                WaterMapping.TryGetValue(key, out water);
+            }
+            else if (entry.Key.StartsWith("boundary"))
+            {
+                string key = BoundaryMapping.Keys.Where(k => entry.Value.StartsWith(k)).FirstOrDefault("");
+                BoundaryMapping.TryGetValue(key, out boundary);
+            }
+            else if (entry.Key.StartsWith("railway"))
+            {
+                string key = RailwayMapping.Keys.Where(k => entry.Value.StartsWith(k)).FirstOrDefault("");
+                RailwayMapping.TryGetValue(key, out railway);
+            }
+            else if (entry.Key.StartsWith("natural"))
+            {
+                string key = NaturalMapping.Keys.Where(k => entry.Value.StartsWith(k)).FirstOrDefault("");
+                NaturalMapping.TryGetValue(key, out natural);
+            }
+            else if (entry.Key.StartsWith("landuse"))
+            {
+                string key = LanduseMapping.Keys.Where(k => entry.Value.StartsWith(k)).FirstOrDefault("");
+                LanduseMapping.TryGetValue(key, out landuse);
+            }
+            else if (entry.Key.StartsWith("building"))
+            {
+                string key = BuildingMapping.Keys.Where(k => entry.Value.StartsWith(k)).FirstOrDefault("");
+                BuildingMapping.TryGetValue(key, out building);
+            }
+            else if (entry.Key.StartsWith("leisure"))
+            {
+                string key = LeisureMapping.Keys.Where(k => entry.Value.StartsWith(k)).FirstOrDefault("");
+                LeisureMapping.TryGetValue(key, out leisure);
+            }
+            else if (entry.Key.StartsWith("amenity"))
+            {
+                string key = AmenityMapping.Keys.Where(k => entry.Value.StartsWith(k)).FirstOrDefault("");
+                AmenityMapping.TryGetValue(key, out amenity);
+            }
+            else if (entry.Key == "admin_level")
+            {
+                string key = AdminLevelMapping.Keys.Where(k => entry.Value.StartsWith(k)).FirstOrDefault("");
+                AdminLevelMapping.TryGetValue(key, out adminLevel);
+            }
+            else if (entry.Key.StartsWith("place"))
+            {
+                string key = PlaceMapping.Keys.Where(k => entry.Value.StartsWith(k)).FirstOrDefault("");
+                PlaceMapping.TryGetValue(key, out place);
+            }
+            else if (entry.Key.StartsWith("name"))
+            {
+                name = entry.Value;
+            }
+        }
+    }
+
+
+    public Highway highway = Highway.unset;
+    public Water water = Water.Unset;
+    public Boundary boundary = Boundary.Unset;
+    public Railway railway = Railway.UNSET;
+    public Natural natural = Natural.UNSET;
+    public Landuse landuse = Landuse.UNSET;
+    public Building building = Building.UNSET;
+    public Leisure leisure = Leisure.UNSET;
+    public Amenity amenity = Amenity.UNSET;
+    public AdminLevel adminLevel = AdminLevel.UNSET;
+    public Place place = Place.UNSET;
+    public string? name = null;
 }
